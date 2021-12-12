@@ -1,0 +1,10 @@
+# Editor directories and files
+production.env
+development.env
+main
+.circleci/config_local.yml
+.DS_Store
+mailform-demo-backend
+launch.json
+.vscode
+function.zip
