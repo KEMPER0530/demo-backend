@@ -1,0 +1,67 @@
+version: 2.1
+orbs:
+  aws-ecr: circleci/aws-ecr@6.15.3
+  aws-cli: circleci/aws-cli@2.0
+  go: circleci/go@1.7.0
+workflows:
+  version: 2
+  test_and_build_and_deploy:
+    jobs:
+      - test
+      - aws-ecr/build-and-push-image:
+          region: AWS_REGION
+          account-url: AWS_ECR_ACCOUNT_URL
+          repo: "${AWS_RESOURCE_NAME_PREFIX}"
+          create-repo: true
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
+      - aws-lambda-deploy:
+          requires:
+            - aws-ecr/build-and-push-image
+          filters:
+            branches:
+              only: main
+jobs:
+  test:
+    executor:
+      name: go/default
+      tag: '1.17'
+    steps:
+      - checkout
+      - go/load-cache
+      - go/mod-download
+      - go/save-cache
+      - go/test:
+          packages: ./tests
+          covermode: atomic
+          failfast: true
+          race: true
+  aws-lambda-deploy:
+    executor: aws-cli/default
+    steps:
+      - checkout
+      - aws-cli/setup
+      - run:
+          name: aws-cli install
+          command: echo "aws-cli install"
+      - run:
+          name: Deploy Lambda
+          command: |
+            DIGEST=$(aws ecr list-images --repository-name ${AWS_RESOURCE_NAME_PREFIX} --out text --query "imageIds[?imageTag=='${AWS_ECR_IMAGE_TAG}'] | [0].imageDigest")
+            if ! aws lambda get-function --region ${AWS_REGION} --function-name ${LAMBDA_FUNCTION} > /dev/null 2>&1; then
+              aws lambda create-function \
+               --function-name ${LAMBDA_FUNCTION} \
+               --package-type Image \
+               --code ImageUri=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}@${DIGEST} \
+               --region ${AWS_REGION} \
+               --environment "Variables={GO_ENV="production", PORT=${PORT}, AWS_SES_ACCESS_KEY_ID=${AWS_SES_ACCESS_KEY_ID}, AWS_SES_ENDPOINT=${AWS_SES_ENDPOINT}, AWS_SES_REGION=${AWS_SES_REGION},AWS_SES_SECRET_KEY=${AWS_SES_SECRET_KEY}}" \
+               --role ${AWS_LAMBDA_ROLE}
+            else
+              aws lambda update-function-code \
+               --function-name ${LAMBDA_FUNCTION} \
+               --image-uri ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:${AWS_ECR_IMAGE_TAG} \
+               --region ${AWS_REGION}
+            fi
