@@ -1,38 +1,13 @@
-[![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://circleci.com/gh/KEMPER0530/go-lambda-api-demo)
+[![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://circleci.com/gh/KEMPER0530/mailform-demo-backend)
 
-# go-lambda-api-demo
+#
 
-![go-lambda-api-demo](https://user-images.githubusercontent.com/43329853/142201779-72293879-e582-4ddb-8f99-daa04bdb58a4.png)
+![mailform-demo-backend]()
 
-サンプルは「API Gateway」 + 「Lambda」で作成したAPIとなります。
-APIGatewayで作成したREST APIにリクエストを投げてdynamoDBへ接続できるかどうかを確認します。
+Golang から AWS SES を呼びメール送信する機能です。
+バックエンド部分は AppSync(GraphQL)から連携されたパラメータを Lambda で受け取り
+SES へ送信内容を連携します。
 
-Go言語で作成し、コンテナイメージとしてLambda上で動作します。
-
-# Requirement
+# 開発環境
 
 - golang 1.17.2
-- Gin
-
-# Usage
-
- 1. dynamoDBの作成(data配下のサンプルを利用してテーブルを作成)
- 2. Lambdaへ本プログラムをデプロイ
- 3. APIGatewayの作成
- 4. Curlの実行
-
-```
-# 例
-curl -X GET https://XXXXXXXXXXXXXX.execute-api.ap-northeast-1.amazonaws.com/dev/V1/actuator-health | jq
-
-% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100   101  100   101    0     0    878      0 --:--:-- --:--:-- --:--:--   885
-{
-  "Code": 200,
-  "DBSts": "CONNECTED",
-  "Time": "2021-11-17T21:40:38.442062149+09:00",
-  "Host": "XXX.XXX.XX.XXXX"
-}
-
-```
