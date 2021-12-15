@@ -45,9 +45,6 @@ jobs:
       - checkout
       - aws-cli/setup
       - run:
-          name: aws-cli install
-          command: echo "aws-cli install"
-      - run:
           name: Deploy Lambda
           command: |
             DIGEST=$(aws ecr list-images --repository-name ${AWS_RESOURCE_NAME_PREFIX} --out text --query "imageIds[?imageTag=='${AWS_ECR_IMAGE_TAG}'] | [0].imageDigest")
