@@ -1,5 +1,9 @@
 package usecase
 
+import (
+	"mailform-demo-backend/src/domain"
+)
+
 type NuxtMailRepository interface {
-    Send(from string,to string,title string,body string) (*string, error)
+	Send(arg domain.NuxtMail, region string, id string, secret string) (*string, error)
 }

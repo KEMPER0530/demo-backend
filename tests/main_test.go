@@ -1,9 +1,9 @@
 package main
 
 import (
-  "fmt"
-  "os"
-  "testing"
+	"fmt"
+	"os"
+	"testing"
 )
 
 func TestMain(m *testing.M) {

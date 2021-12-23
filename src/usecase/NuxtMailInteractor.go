@@ -1,31 +1,31 @@
 package usecase
 
 import (
-    "log"
-    "mailform-demo-backend/src/domain"
+	"log"
+	"mailform-demo-backend/src/domain"
 )
 
 type NuxtMailInteractor struct {
-    NM NuxtMailRepository
+	SES SESRepository
+	NM  NuxtMailRepository
 }
 
 func (interactor *NuxtMailInteractor) SendSESEmail(arg domain.NuxtMail) (res domain.Res, err error) {
-    res = domain.Res{}
+	res = domain.Res{}
+	// AWS設定値取得
+	region := interactor.SES.GetRegion()
+	id := interactor.SES.GetKeyid()
+	secret := interactor.SES.GetSecretkey()
 
-    from := arg.From
-    to := arg.To
-    subject := arg.Subject
-    body := arg.Body
+	msgID, err := interactor.NM.Send(arg, region, id, secret)
+	if err != nil {
+		res.Responce = 500
+		res.Result = "failed"
+		return res, err
+	}
+	log.Println(msgID)
+	res.Responce = 200
+	res.Result = "success"
 
-    msgID, err := interactor.NM.Send(from,to,subject,body)
-    if err != nil {
-        res.Responce = 500
-        res.Result = "failed"
-        return res,err
-    }
-    log.Println(msgID)
-    res.Responce = 200
-    res.Result = "success"
-
-    return res,nil
+	return res, nil
 }
