@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"log"
 	"mailform-demo-backend/src/domain"
 )
 
@@ -18,14 +17,15 @@ func (interactor *NuxtMailInteractor) SendSESEmail(arg domain.NuxtMail) (res dom
 	secret := interactor.SES.GetSecretkey()
 
 	msgID, err := interactor.NM.Send(arg, region, id, secret)
+	//msgID, err := interactor.NM.Send(arg, interactor.SES)
 	if err != nil {
 		res.Responce = 500
 		res.Result = "failed"
 		return res, err
 	}
-	log.Println(msgID)
 	res.Responce = 200
 	res.Result = "success"
+	_ = msgID
 
 	return res, nil
 }
