@@ -17,7 +17,6 @@ func (interactor *NuxtMailInteractor) SendSESEmail(arg domain.NuxtMail) (res dom
 	secret := interactor.SES.GetSecretkey()
 
 	msgID, err := interactor.NM.Send(arg, region, id, secret)
-	//msgID, err := interactor.NM.Send(arg, interactor.SES)
 	if err != nil {
 		res.Responce = 500
 		res.Result = "failed"
