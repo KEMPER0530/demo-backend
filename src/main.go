@@ -25,7 +25,7 @@ func main() {
 		// lambda関数の実行
 		fmt.Println("lambda Start...")
 		lambda.Start(handler)
-	// local環境で実行するとき
+		// local環境で実行するとき
 	} else {
 		fmt.Println("Development mode...")
 		// 環境変数ファイルの読込
