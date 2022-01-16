@@ -12,10 +12,12 @@ import(
 func TestSES(t *testing.T) {
   fmt.Println("start test TestSES")
 
-	// 環境変数ファイルの読込
-	err := godotenv.Load(fmt.Sprintf("../../src/infrastructure/%s.env", os.Getenv("GO_ENV")))
-	if err != nil {
-		t.Errorf("環境変数読込エラー")
+	if os.Getenv("GO_ENV") == "development" {
+		// 環境変数ファイルの読込
+		err := godotenv.Load(fmt.Sprintf("../../src/infrastructure/%s.env", os.Getenv("GO_ENV")))
+		if err != nil {
+			t.Errorf("環境変数読込エラー")
+		}
 	}
 
   t.Run("【正常系】AWSの設定値が正常に取得できているかどうかを検証", func(t *testing.T){
