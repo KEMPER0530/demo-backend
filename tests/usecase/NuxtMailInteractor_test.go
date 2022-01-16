@@ -17,16 +17,16 @@ import(
 func TestSendSESEmail(t *testing.T) {
   fmt.Println("start test TestSend")
 
-	// 環境変数ファイルの読込
-	err := godotenv.Load(fmt.Sprintf("../../src/infrastructure/%s.env", os.Getenv("GO_ENV")))
-	if err != nil {
-		t.Errorf("環境変数読込エラー")
+	if os.Getenv("GO_ENV") == "development" {
+		// 環境変数ファイルの読込
+		err := godotenv.Load(fmt.Sprintf("../../src/infrastructure/%s.env", os.Getenv("GO_ENV")))
+		if err != nil {
+			t.Errorf("環境変数読込エラー")
+		}
 	}
 
 	// パラメータ値の設定
 	arg := domain.NuxtMail{}
-
-	res := domain.Res{}
 
   // 値の設定
   ses := infra.NewSES()
@@ -63,7 +63,8 @@ func TestSendSESEmail(t *testing.T) {
 		NuxtMailController.Interactor.SES = mockSESRepository
 		NuxtMailController.Interactor.NM = mockNuxtMailRepository
 
-		res, err = NuxtMailController.Interactor.SendSESEmail(arg)
+		res, e := NuxtMailController.Interactor.SendSESEmail(arg)
+		_ = e
 
 		// 検証
 		assert.Equal(t, res.Responce , 200 ,"not equal")
@@ -102,7 +103,8 @@ func TestSendSESEmail(t *testing.T) {
 		NuxtMailController.Interactor.SES = mockSESRepository
 		NuxtMailController.Interactor.NM = mockNuxtMailRepository
 
-		res, err = NuxtMailController.Interactor.SendSESEmail(arg)
+		res, e := NuxtMailController.Interactor.SendSESEmail(arg)
+		_ = e
 
 		// 検証
 		assert.Equal(t, res.Responce , 500 ,"not equal")

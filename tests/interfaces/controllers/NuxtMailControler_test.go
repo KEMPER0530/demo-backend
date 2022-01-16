@@ -17,16 +17,17 @@ import(
 func TestNewNuxtMailController(t *testing.T) {
   fmt.Println("start test TestNewNuxtMailController")
 
-	// 環境変数ファイルの読込
-	err := godotenv.Load(fmt.Sprintf("../../../src/infrastructure/%s.env", os.Getenv("GO_ENV")))
-	if err != nil {
-		t.Errorf("環境変数読込エラー")
+	if os.Getenv("GO_ENV") == "development" {
+		// 環境変数ファイルの読込
+		err := godotenv.Load(fmt.Sprintf("../../../src/infrastructure/%s.env", os.Getenv("GO_ENV")))
+		if err != nil {
+			t.Errorf("環境変数読込エラー")
+		}
 	}
 
 	// パラメータ値の設定
 	arg := domain.NuxtMail{}
 
-	res := domain.Res{}
 
   // 値の設定
   ses := infra.NewSES()
@@ -68,14 +69,14 @@ func TestNewNuxtMailController(t *testing.T) {
 		NuxtMailController.Interactor.SES = mockSESRepository
 		NuxtMailController.Interactor.NM = mockNuxtMailRepository
 
-    res,err = NuxtMailController.SendSESEmail(arg)
+    res,e := NuxtMailController.SendSESEmail(arg)
+    _ = e
 
     assert.Equal(t, res.Responce, 200,"not equal")
     assert.Equal(t, res.Result, "success","not equal")
 
     t.Logf("res.Responce: %d", res.Responce)
     t.Logf("res.Result: %s", res.Result)
-    t.Logf("err.Error: %s", err)
   })
 
   t.Run("【異常系】メール配信時にエラー", func(t *testing.T){
@@ -112,14 +113,14 @@ func TestNewNuxtMailController(t *testing.T) {
 		NuxtMailController.Interactor.SES = mockSESRepository
 		NuxtMailController.Interactor.NM = mockNuxtMailRepository
 
-    res,err = NuxtMailController.SendSESEmail(arg)
+    res,e := NuxtMailController.SendSESEmail(arg)
 
     assert.Equal(t, res.Responce, 500,"not equal")
     assert.Equal(t, res.Result, "failed","not equal")
 
     t.Logf("res.Responce: %d", res.Responce)
     t.Logf("res.Result: %s", res.Result)
-    t.Logf("err.Error: %s", err)
+    t.Logf("err.Error: %s", e)
   })
 
   fmt.Println("end test TestNewNuxtMailController")

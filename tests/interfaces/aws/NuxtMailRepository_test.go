@@ -14,10 +14,12 @@ import(
 func TestSend(t *testing.T) {
   fmt.Println("start test TestSend")
 
-	// 環境変数ファイルの読込
-	err := godotenv.Load(fmt.Sprintf("../../../src/infrastructure/%s.env", os.Getenv("GO_ENV")))
-	if err != nil {
-		t.Errorf("環境変数読込エラー")
+	if os.Getenv("GO_ENV") == "development" {
+		// 環境変数ファイルの読込
+		err := godotenv.Load(fmt.Sprintf("../../../src/infrastructure/%s.env", os.Getenv("GO_ENV")))
+		if err != nil {
+			t.Errorf("環境変数読込エラー")
+		}
 	}
 
   // パラメータ値の設定
@@ -247,10 +249,12 @@ func TestSend(t *testing.T) {
 func BenchmarkMailSend(b *testing.B) {
   fmt.Println("start test BenchmarkMailSend")
 
-	// 環境変数ファイルの読込
-	err := godotenv.Load(fmt.Sprintf("../../../src/infrastructure/%s.env", os.Getenv("GO_ENV")))
-	if err != nil {
-		b.Errorf("環境変数読込エラー")
+	if os.Getenv("GO_ENV") == "development" {
+		// 環境変数ファイルの読込
+		err := godotenv.Load(fmt.Sprintf("../../../src/infrastructure/%s.env", os.Getenv("GO_ENV")))
+		if err != nil {
+			b.Errorf("環境変数読込エラー")
+		}
 	}
 
   // パラメータ値の設定
