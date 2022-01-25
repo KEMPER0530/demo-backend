@@ -7,6 +7,4 @@ type NuxtMail struct {
 	Body      string `json:"body"`
 	Createdat string `json:"createdat"`
 	Updatedat string `json:"updatedat"`
-	Responce  int    `json:"responce"`
-	Result    string `json:"result"`
 }
