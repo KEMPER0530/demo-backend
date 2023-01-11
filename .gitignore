@@ -8,3 +8,4 @@ mailform-demo-backend
 launch.json
 .vscode
 function.zip
+go.sum
