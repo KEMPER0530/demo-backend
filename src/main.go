@@ -59,5 +59,6 @@ func checkArgs() {
 }
 
 func SendMail(dnm domain.NuxtMail) (domain.Res, error) {
-    return controllers.SendMail(dnm)
+		NuxtMailController := controllers.NewNuxtMailController(infrastructure.NewSES())
+    return NuxtMailController.SendSESEmail(dnm)
 }

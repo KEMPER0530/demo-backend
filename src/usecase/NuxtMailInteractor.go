@@ -5,17 +5,13 @@ import (
 )
 
 type NuxtMailInteractor struct {
-    ses SESRepository
-    nm  NuxtMailRepository
-}
-
-func NewNuxtMailInteractor(ses SESRepository, nm NuxtMailRepository) *NuxtMailInteractor {
-    return &NuxtMailInteractor{ses: ses, nm: nm}
+	SES SESRepository
+	NM  NuxtMailRepository
 }
 
 func (i *NuxtMailInteractor) SendSESEmail(arg domain.NuxtMail) (domain.Res, error) {
-    region, keyid, secret := i.ses.GetRegion(), i.ses.GetKeyid(), i.ses.GetSecretkey()
-    msgID, err := i.nm.Send(arg, region, keyid, secret)
+    region, keyid, secret := i.SES.GetRegion(), i.SES.GetKeyid(), i.SES.GetSecretkey()
+    _, err := i.NM.Send(arg, region, keyid, secret)
     if err != nil {
         return domain.Res{Responce: 500, Result: "failed"}, err
     }

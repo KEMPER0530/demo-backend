@@ -4,10 +4,8 @@
 
 ![MailDemo_ALL](https://user-images.githubusercontent.com/43329853/145986290-6506f0ad-6043-4e03-b13d-04553d92be1f.png)
 
-Golang から AWS SES を呼びメール送信する機能です。
-バックエンド部分は AppSync(GraphQL)から連携されたパラメータを Lambda で受け取り SES へ送信内容を連携します。
-
-送信結果は「delivery」「bounce」含めて、SES→SNS→Lambda→dynamoDB へ格納します。
+このプロジェクトは Golang から AWS SES にメールを送信する機能です。バックエンド部分は AppSync(GraphQL)からパラメータを受け取り、Lambda で SES に送信します。
+送信結果は「delivery」「bounce」を含め、SES→SNS→Lambda→dynamoDB に格納されます。
 
 フロントは[こちら](https://github.com/KEMPER0530/mailform-demo-front)を参照ください
 
