@@ -21,8 +21,7 @@ var from, to, sub, body, prompt *string
 func main() {
 	if os.Getenv("GO_ENV") == "production" {
 		fmt.Println("Starting production mode...")
-		lambda.Start(handlerNuxtMail)
-		lambda.Start(handlerChatGpt)
+		lambda.Start(HandleRequests)
 	} else {
 		fmt.Println("Starting development mode...")
 		loadEnvVars()
@@ -31,14 +30,14 @@ func main() {
 		var err error
 		switch *i {
 		case 0:
-			result, err = SendMail(domain.NuxtMail{
+			result, err = handleNuxtMail(domain.NuxtMail{
 				From:    *from,
 				To:      *to,
 				Subject: *sub,
 				Body:    *body,
 			})
 		case 1:
-			result, err = SendPrompt(domain.ChatGpt{
+			result, err = handleChatGpt(domain.ChatGpt{
 				Prompt: *prompt,
 			})
 		default:
@@ -52,20 +51,15 @@ func main() {
 	}
 }
 
-func handlerNuxtMail(ctx context.Context, arg domain.NuxtMail) (domain.Res, error) {
-	result, err := SendMail(arg)
-	if err != nil {
-		return domain.Res{}, err
+func HandleRequests(ctx context.Context, request interface{}) (interface{}, error) {
+	switch request := request.(type) {
+		case domain.NuxtMail:
+			return handleNuxtMail(request)
+		case domain.ChatGpt:
+			return handleChatGpt(request)
+		default:
+		return nil, fmt.Errorf("unknown request type %T", request)
 	}
-	return result, nil
-}
-
-func handlerChatGpt(ctx context.Context, arg domain.ChatGpt) (domain.Res, error) {
-	result, err := SendPrompt(arg)
-	if err != nil {
-		return domain.Res{}, err
-	}
-	return result, nil
 }
 
 func loadEnvVars() {
@@ -85,12 +79,12 @@ func initArgs() {
 	flag.Parse()
 }
 
-func SendMail(dnm domain.NuxtMail) (domain.Res, error) {
+func handleNuxtMail(dnm domain.NuxtMail) (domain.Res, error) {
 	NuxtMailController := controllers.NewNuxtMailController(infrastructure.NewSES())
 	return NuxtMailController.SendSESEmail(dnm)
 }
 
-func SendPrompt(dnm domain.ChatGpt) (domain.Res, error) {
+func handleChatGpt(dnm domain.ChatGpt) (domain.Res, error) {
 	ChatGptController := controllers.NewChatGptController(infrastructure.NewGPT())
 	return ChatGptController.SendChatGptPrompt(dnm)
 }
