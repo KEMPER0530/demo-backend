@@ -1,7 +1,5 @@
 package aws
 
-import ()
-
 type SESRepository struct {
 	SES SES
 }

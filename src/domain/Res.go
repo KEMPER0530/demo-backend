@@ -1,6 +1,6 @@
 package domain
 
 type Res struct {
-	Responce int    `json:"responce"`
+	Response int    `json:"response"`
 	Result   string `json:"result"`
 }
