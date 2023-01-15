@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/joho/godotenv"
+	"github.com/mitchellh/mapstructure"
 
 	"mailform-demo-backend/src/domain"
 	"mailform-demo-backend/src/infrastructure"
@@ -51,15 +52,19 @@ func main() {
 	}
 }
 
-func HandleRequests(ctx context.Context, request interface{}) (interface{}, error) {
-	switch request := request.(type) {
-		case domain.NuxtMail:
-			return handleNuxtMail(request)
-		case domain.ChatGpt:
-			return handleChatGpt(request)
-		default:
-		return nil, fmt.Errorf("unknown request type %T", request)
+func HandleRequests(ctx context.Context, request map[string]interface{}) (interface{}, error) {
+	var chatGpt domain.ChatGpt
+	var nuxtMail domain.NuxtMail
+	if request["prompt"] != nil {
+		if err := mapstructure.Decode(request, &chatGpt); err == nil {
+			return handleChatGpt(chatGpt)
+		}
+	} else if request["from"] != nil && request["to"] != nil {
+		if err := mapstructure.Decode(request, &nuxtMail); err == nil {
+			return handleNuxtMail(nuxtMail)
+		}
 	}
+	return nil, fmt.Errorf("unknown request type %T", request)
 }
 
 func loadEnvVars() {
