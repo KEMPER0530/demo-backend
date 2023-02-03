@@ -31,11 +31,11 @@ jobs:
       tag: '1.17'
     steps:
       - checkout
-      - go/load-cache
       - go/mod-download
       - run:
           name: Generate go.sum
           command: go mod tidy
+      - go/load-cache
       - go/save-cache
       - go/test:
           packages: ./...

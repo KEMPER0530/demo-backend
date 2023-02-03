@@ -67,9 +67,9 @@ func TestSendSESEmail(t *testing.T) {
 		_ = e
 
 		// 検証
-		assert.Equal(t, res.Responce, 200, "not equal")
+		assert.Equal(t, res.Response, 200, "not equal")
 		assert.Equal(t, res.Result, "success", "not equal")
-		t.Logf("res.Responce: %d", res.Responce)
+		t.Logf("res.Responce: %d", res.Response)
 		t.Logf("res.Result: %s", res.Result)
 
 	})
@@ -107,9 +107,9 @@ func TestSendSESEmail(t *testing.T) {
 		_ = e
 
 		// 検証
-		assert.Equal(t, res.Responce, 500, "not equal")
+		assert.Equal(t, res.Response, 500, "not equal")
 		assert.Equal(t, res.Result, "failed", "not equal")
-		t.Logf("res.Responce: %d", res.Responce)
+		t.Logf("res.Responce: %d", res.Response)
 		t.Logf("res.Result: %s", res.Result)
 
 	})
