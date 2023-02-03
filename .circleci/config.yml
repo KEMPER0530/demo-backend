@@ -33,6 +33,9 @@ jobs:
       - checkout
       - go/load-cache
       - go/mod-download
+      - run:
+          name: Generate go.sum
+          command: go mod tidy
       - go/save-cache
       - go/test:
           packages: ./...
@@ -62,3 +65,7 @@ jobs:
                --image-uri ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:${AWS_ECR_IMAGE_TAG} \
                --region ${AWS_REGION}
             fi
+cache:
+  paths:
+    - vendor/
+    - go/pkg/
