@@ -3,8 +3,8 @@ package chat
 import (
 	"context"
 	"github.com/PullRequestInc/go-gpt3"
+	"github.com/kemper0530/demo-backend/src/domain"
 	"log"
-	"mailform-demo-backend/src/domain"
 )
 
 type ChatGptRepository struct{}

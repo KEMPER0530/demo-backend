@@ -2,86 +2,55 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
-	"log"
-	"os"
-
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/joho/godotenv"
 	"github.com/mitchellh/mapstructure"
 
-	"mailform-demo-backend/src/domain"
-	"mailform-demo-backend/src/infrastructure"
-	"mailform-demo-backend/src/interfaces/controllers"
+	"github.com/kemper0530/demo-backend/src/domain"
+	"github.com/kemper0530/demo-backend/src/infrastructure"
+	"github.com/kemper0530/demo-backend/src/interfaces/controllers"
 )
 
-var i *int
-var from, to, sub, body, prompt *string
+type AppSyncEvent struct {
+	OperationName string                 `mapstructure:"operationName"`
+	Arguments     map[string]interface{} `mapstructure:"arguments"`
+}
+
+type NuxtMailArgs struct {
+	Body      string `mapstructure:"body"`
+	CreatedAt string `mapstructure:"createdat"`
+	From      string `mapstructure:"from"`
+	Subject   string `mapstructure:"subject"`
+	To        string `mapstructure:"to"`
+	UpdatedAt string `mapstructure:"updatedat"`
+}
 
 func main() {
-	if os.Getenv("GO_ENV") == "production" {
-		fmt.Println("Starting production mode...")
-		lambda.Start(HandleRequests)
-	} else {
-		fmt.Println("Starting development mode...")
-		loadEnvVars()
-		initArgs()
-		var result domain.Res
-		var err error
-		switch *i {
-		case 0:
-			result, err = handleNuxtMail(domain.NuxtMail{
-				From:    *from,
-				To:      *to,
-				Subject: *sub,
-				Body:    *body,
-			})
-		case 1:
-			result, err = handleChatGpt(domain.ChatGpt{
-				Prompt: *prompt,
-			})
-		default:
-			log.Fatal("Invalid mode flag")
-		}
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		log.Println(result)
-	}
+	lambda.Start(HandleRequests)
 }
 
-func HandleRequests(ctx context.Context, request map[string]interface{}) (interface{}, error) {
-	var chatGpt domain.ChatGpt
-	var nuxtMail domain.NuxtMail
-	if request["prompt"] != nil {
-		if err := mapstructure.Decode(request, &chatGpt); err == nil {
-			return handleChatGpt(chatGpt)
+func HandleRequests(ctx context.Context, request AppSyncEvent) (interface{}, error) {
+	switch request.OperationName {
+	case "createChatGpt":
+		var args domain.ChatGpt
+		if err := mapstructure.Decode(request.Arguments, &args); err != nil {
+			return nil, err
 		}
-	} else if request["from"] != nil && request["to"] != nil {
-		if err := mapstructure.Decode(request, &nuxtMail); err == nil {
-			return handleNuxtMail(nuxtMail)
+		return handleChatGpt(args)
+	case "createNuxtMail":
+		var args NuxtMailArgs
+		if err := mapstructure.Decode(request.Arguments, &args); err != nil {
+			return nil, err
 		}
+		return handleNuxtMail(domain.NuxtMail{
+			From:    args.From,
+			To:      args.To,
+			Subject: args.Subject,
+			Body:    args.Body,
+		})
+	default:
+		return nil, fmt.Errorf("unknown operation: %s", request.OperationName)
 	}
-	return nil, fmt.Errorf("unknown request type %T", request)
-}
-
-func loadEnvVars() {
-	err := godotenv.Load(fmt.Sprintf("src/infrastructure/%s.env", os.Getenv("GO_ENV")))
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func initArgs() {
-	i = flag.Int("i", 0, "mode flag(0:SESメール,1:ChatGpt)")
-	from = flag.String("f", os.Getenv("AWS_SES_TEST_FROM"), "SES から送信するメッセージの MAIL FROM ドメイン")
-	to = flag.String("t", os.Getenv("AWS_SES_TEST_SUCCESS_TO"), "SES から送信するメッセージの MAIL TO ドメイン")
-	sub = flag.String("s", "テスト件名", "メールの件名")
-	body = flag.String("b", "テスト本文", "メールの本文")
-	prompt = flag.String("p", "Go言語の特徴について教えて下さい.", "ChatGptのprompt")
-	flag.Parse()
 }
 
 func handleNuxtMail(dnm domain.NuxtMail) (domain.Res, error) {

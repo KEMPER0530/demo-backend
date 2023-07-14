@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://circleci.com/gh/KEMPER0530/mailform-demo-backend)
+[![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://circleci.com/gh/KEMPER0530/demo-backend)
 
 # mailform-demo-backend
 
@@ -6,9 +6,8 @@
 
 このプロジェクトは Golang から AWS SES にメールを送信する機能です。バックエンド部分は AppSync(GraphQL)からパラメータを受け取り、Lambda で SES に送信します。
 送信結果は「delivery」「bounce」を含め、SES→SNS→Lambda→dynamoDB に格納されます。
-加えて、GPT-3 を使って、チャットボットシステムを構築しています。
 
-フロントは[こちら](https://github.com/KEMPER0530/mailform-demo-front)を参照ください
+フロントは[こちら](https://github.com/KEMPER0530/demo-front)を参照ください
 
 # Requirement
 
@@ -20,7 +19,6 @@
 - AWS SNS
 - AWS ECR
 - [AWS Route53](https://qiita.com/NaokiIshimura/items/89e104dd2d8dd950780e)
-- [ChatGPT](https://openai.com/api/)
 
 # Usage
 

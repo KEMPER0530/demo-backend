@@ -1,15 +1,15 @@
-module mailform-demo-backend
+module github.com/kemper0530/demo-backend
 
-go 1.17
+go 1.19
 
 require (
-	github.com/PullRequestInc/go-gpt3 v1.1.11
-	github.com/aws/aws-lambda-go v1.27.1
-	github.com/aws/aws-sdk-go v1.42.22
+	github.com/PullRequestInc/go-gpt3 v1.1.15
+	github.com/aws/aws-lambda-go v1.41.0
+	github.com/aws/aws-sdk-go v1.44.300
 	github.com/golang/mock v1.6.0
-	github.com/joho/godotenv v1.4.0
+	github.com/joho/godotenv v1.5.1
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.8.4
 )
 
 require (

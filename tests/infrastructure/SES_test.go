@@ -3,8 +3,8 @@ package infrastructure
 import (
 	"fmt"
 	"github.com/joho/godotenv"
+	infra "github.com/kemper0530/demo-backend/src/infrastructure"
 	"github.com/stretchr/testify/assert"
-	infra "mailform-demo-backend/src/infrastructure"
 	"os"
 	"testing"
 )

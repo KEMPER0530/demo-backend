@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"mailform-demo-backend/src/domain"
-	"mailform-demo-backend/src/interfaces/aws"
-	"mailform-demo-backend/src/usecase"
+	"github.com/kemper0530/demo-backend/src/domain"
+	"github.com/kemper0530/demo-backend/src/interfaces/aws"
+	"github.com/kemper0530/demo-backend/src/usecase"
 )
 
 type NuxtMailController struct {

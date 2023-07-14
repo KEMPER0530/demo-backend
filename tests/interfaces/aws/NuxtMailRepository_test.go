@@ -3,10 +3,10 @@ package interfaces
 import (
 	"fmt"
 	"github.com/joho/godotenv"
+	"github.com/kemper0530/demo-backend/src/domain"
+	infra "github.com/kemper0530/demo-backend/src/infrastructure"
+	cont "github.com/kemper0530/demo-backend/src/interfaces/controllers"
 	"github.com/stretchr/testify/assert"
-	"mailform-demo-backend/src/domain"
-	infra "mailform-demo-backend/src/infrastructure"
-	cont "mailform-demo-backend/src/interfaces/controllers"
 	"os"
 	"testing"
 )

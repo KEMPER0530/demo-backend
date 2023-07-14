@@ -5,7 +5,7 @@
 package mock_usecase
 
 import (
-	domain "mailform-demo-backend/src/domain"
+	domain "github.com/kemper0530/demo-backend/src/domain"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

@@ -9,3 +9,4 @@ launch.json
 .vscode
 function.zip
 go.sum
+.idea/

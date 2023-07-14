@@ -5,8 +5,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
+	"github.com/kemper0530/demo-backend/src/domain"
 	"log"
-	"mailform-demo-backend/src/domain"
 )
 
 type NuxtMailRepository struct{}

@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"mailform-demo-backend/src/domain"
+	"github.com/kemper0530/demo-backend/src/domain"
 )
 
 type NuxtMailInteractor struct {
