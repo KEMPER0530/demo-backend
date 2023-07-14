@@ -1,6 +1,6 @@
 module github.com/kemper0530/demo-backend
 
-go 1.19
+go 1.17
 
 require (
 	github.com/PullRequestInc/go-gpt3 v1.1.15
