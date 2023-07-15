@@ -15,10 +15,10 @@ func NewDynamoDB() *dynamo.DB {
 	sess := session.Must(session.NewSession())
 
 	if os.Getenv("GO_ENV") == "production" {
-		db = dynamo.New(sess, &aws.Config{Region: aws.String("ap-northeast-1")})
+		db = dynamo.New(sess, &aws.Config{Region: aws.String(os.Getenv("AWS_DYNAMODB_REGION"))})
 	} else {
-		creds := credentials.NewStaticCredentials(os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY"), "")
-		db = dynamo.New(sess, aws.NewConfig().WithRegion(os.Getenv("AWS_REGION")).WithCredentials(creds))
+		creds := credentials.NewStaticCredentials(os.Getenv("AWS_DYNAMODB_ACCESS_KEY_ID"), os.Getenv("AWS_DYNAMODB_SECRET_ACCESS_KEY"), "")
+		db = dynamo.New(sess, aws.NewConfig().WithRegion(os.Getenv("AWS_DYNAMODB_REGION")).WithCredentials(creds))
 	}
 
 	return db
