@@ -7,12 +7,16 @@ import (
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/kemper0530/demo-backend/src/domain"
 	"log"
+	"time"
 )
 
 type NuxtMailRepository struct{}
 
 func (nm *NuxtMailRepository) Send(arg domain.NuxtMail, region, keyID, secretKey string) (*string, error) {
-	session, err := session.NewSession(&aws.Config{
+	log.Println("Email Sending Start...")
+	start := time.Now()
+
+	newSession, err := session.NewSession(&aws.Config{
 		Region:      aws.String(region),
 		Credentials: credentials.NewStaticCredentials(keyID, secretKey, ""),
 	})
@@ -21,7 +25,8 @@ func (nm *NuxtMailRepository) Send(arg domain.NuxtMail, region, keyID, secretKey
 		return nil, err
 	}
 
-	svc := ses.New(session)
+	log.Printf("Session Created in %v seconds\n", time.Since(start).Seconds())
+	svc := ses.New(newSession)
 
 	input := &ses.SendEmailInput{
 		Destination: &ses.Destination{
@@ -41,6 +46,7 @@ func (nm *NuxtMailRepository) Send(arg domain.NuxtMail, region, keyID, secretKey
 		},
 		Source: aws.String(arg.From),
 	}
+
 	result, err := svc.SendEmail(input)
 	if err != nil {
 		log.Println(err)
@@ -49,5 +55,6 @@ func (nm *NuxtMailRepository) Send(arg domain.NuxtMail, region, keyID, secretKey
 
 	log.Println("Email Sent to address: " + arg.To)
 	log.Println(result)
+	log.Printf("Email Sent in %v seconds\n", time.Since(start).Seconds())
 	return result.MessageId, nil
 }
