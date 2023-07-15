@@ -1,4 +1,4 @@
-FROM golang:1.17.2-alpine
+FROM golang:1.18.0-alpine
 MAINTAINER kemper0530
 
 ENV GOPATH /go
