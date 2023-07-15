@@ -30,7 +30,7 @@ type NuxtMailArgs struct {
 }
 
 var i *int
-var from, to, sub, body, prompt *string
+var from, to, sub, body, user, input, output, createdat *string
 
 func main() {
 	if os.Getenv("GO_ENV") == "production" {
@@ -49,19 +49,20 @@ func main() {
 			testEvent = AppSyncEvent{
 				OperationName: "createNuxtMail",
 				Arguments: map[string]interface{}{
-					"from":      *from,
-					"to":        *to,
-					"subject":   *sub,
-					"body":      *body,
-					"createdAt": "",
-					"updatedAt": "",
+					"from":    *from,
+					"to":      *to,
+					"subject": *sub,
+					"body":    *body,
 				},
 			}
 		case 1:
 			testEvent = AppSyncEvent{
 				OperationName: "createChatGpt",
 				Arguments: map[string]interface{}{
-					"prompt": *prompt,
+					"user":      *user,
+					"input":     *input,
+					"output":    *output,
+					"createdat": *createdat,
 				},
 			}
 		default:
@@ -81,11 +82,16 @@ func HandleRequests(ctx context.Context, request AppSyncEvent) (interface{}, err
 	fmt.Printf("Request received: %+v\n", request) // デバッグログ
 	switch request.OperationName {
 	case "createChatGpt":
-		var args domain.ChatGpt
+		var args domain.ChatGptResult
 		if err := mapstructure.Decode(request.Arguments, &args); err != nil {
 			return nil, err
 		}
-		return handleChatGpt(args)
+		return handleChatGptResult(domain.ChatGptResult{
+			User:      args.User,
+			Input:     args.Input,
+			Output:    args.Output,
+			Createdat: args.Createdat,
+		})
 	case "createNuxtMail":
 		var args NuxtMailArgs
 		if err := mapstructure.Decode(request.Arguments, &args); err != nil {
@@ -108,19 +114,22 @@ func handleNuxtMail(dnm domain.NuxtMail) (domain.Res, error) {
 	return NuxtMailController.SendSESEmail(dnm)
 }
 
-func handleChatGpt(dnm domain.ChatGpt) (domain.Res, error) {
-	fmt.Printf("Handling ChatGpt: %+v\n", dnm) // デバッグログ
-	ChatGptController := controllers.NewChatGptController(infrastructure.NewGPT())
-	return ChatGptController.SendChatGptPrompt(dnm)
+func handleChatGptResult(dnm domain.ChatGptResult) (domain.Res, error) {
+	fmt.Printf("Handling ChatGptResult: %+v\n", dnm) // デバッグログ
+	PutChatGptController := controllers.NewPutChatGptController()
+	return PutChatGptController.PutChatGptResult(dnm, infrastructure.NewDynamoDB())
 }
 
 func initArgs() {
-	i = flag.Int("i", 0, "mode flag(0:SESメール,1:ChatGpt)")
+	i = flag.Int("i", 0, "mode flag(0:SESメール,1:ChatGptResult)")
 	from = flag.String("f", os.Getenv("AWS_SES_TEST_FROM"), "SES から送信するメッセージの MAIL FROM ドメイン")
 	to = flag.String("t", os.Getenv("AWS_SES_TEST_SUCCESS_TO"), "SES から送信するメッセージの MAIL TO ドメイン")
 	sub = flag.String("s", "テスト件名", "メールの件名")
 	body = flag.String("b", "テスト本文", "メールの本文")
-	prompt = flag.String("p", "Go言語の特徴について教えて下さい.", "ChatGptのprompt")
+	user = flag.String("us", "ユーザ名", "ユーザ名")
+	input = flag.String("in", "インプット", "インプット")
+	output = flag.String("ou", "アウトプット", "アウトプット")
+	createdat = flag.String("cr", "作成日", "作成日")
 	flag.Parse()
 }
 

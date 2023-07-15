@@ -27,3 +27,7 @@
 ```
 $ GO_ENV=development go run src/main.go -i 0 -f from@test.com -t to@test.com -s [件名] -b [本文]
 ```
+
+```
+$ GO_ENV=development go run src/main.go -i 1 -us test@test.com -in Input -ou Output -cr 2022/01/01
+```
