@@ -34,8 +34,8 @@ func handleNuxtMail(dnm domain.NuxtMail) (domain.Res, error) {
 	return NuxtMailController.SendSESEmail(dnm)
 }
 
-func handleChatGptResult(dnm domain.ChatGptResult) (domain.Res, error) {
-	fmt.Printf("Handling ChatGptResult: %+v\n", dnm) // デバッグログ
+func handleChatGptResult(dcgr domain.ChatGptResult) (domain.Res, error) {
+	fmt.Printf("Handling ChatGptResult: %+v\n", dcgr) // デバッグログ
 	PutChatGptController := controllers.NewPutChatGptController()
-	return PutChatGptController.PutChatGptResult(dnm, NewDynamoDB())
+	return PutChatGptController.PutChatGptResult(dcgr, NewDynamoDB())
 }
