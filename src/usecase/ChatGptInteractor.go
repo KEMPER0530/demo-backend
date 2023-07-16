@@ -1,8 +1,7 @@
 package usecase
 
 import (
-	"crypto/rand"
-	"encoding/hex"
+	"github.com/google/uuid"
 	"github.com/guregu/dynamo"
 	"github.com/kemper0530/demo-backend/src/domain"
 )
@@ -18,15 +17,14 @@ func (i *ChatGptInteractor) PutChatGptResult(arg domain.ChatGptResult, d *dynamo
 		return domain.Res{Response: 500, Result: "failed"}, err
 	}
 
-	// Generate a new message ID
-	messageID := make([]byte, 16)
-	_, err = rand.Read(messageID)
+	// Generate a new UUID
+	id, err := uuid.NewRandom()
 	if err != nil {
-		return domain.Res{Response: 500, Result: "failed to generate message ID"}, err
+		return domain.Res{Response: 500, Result: "failed to generate UUID"}, err
 	}
 
-	// Create a new instance of ChatGptResult with the new message ID
-	arg.MessageID = hex.EncodeToString(messageID)
+	// Create a new instance of ChatGptResult with the new UUID
+	arg.MessageID = id.String()
 
 	table := d.Table("ChatGptResult")
 	err = i.CGR.PutResult(&table, arg)
