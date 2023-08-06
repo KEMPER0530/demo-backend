@@ -1,6 +1,6 @@
 module github.com/kemper0530/demo-backend
 
-go 1.18
+go 1.20
 
 require (
 	github.com/aws/aws-lambda-go v1.41.0

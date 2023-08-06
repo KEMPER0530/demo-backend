@@ -1,4 +1,4 @@
-FROM golang:1.18.0-alpine
+FROM golang:1.20.7-alpine3.18
 MAINTAINER kemper0530
 
 ENV GOPATH /go
@@ -12,6 +12,6 @@ COPY  /src $GOPATH/src/github.com/kemper0530/demo-backend/src
 RUN go mod init demo-backend
 RUN go mod tidy
 
-RUN GOOS=linux go build -o demo-backend ./src
+RUN GOOS=linux GOARCH=arm64 go build -o demo-backend ./src
 
 ENTRYPOINT ["/go/src/github.com/kemper0530/demo-backend/demo-backend"]

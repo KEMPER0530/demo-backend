@@ -28,7 +28,7 @@ jobs:
   test:
     executor:
       name: go/default
-      tag: '1.18'
+      tag: '1.20'
     steps:
       - checkout
       - go/mod-download
@@ -54,6 +54,7 @@ jobs:
             if ! aws lambda get-function --region ${AWS_REGION} --function-name ${LAMBDA_FUNCTION} > /dev/null 2>&1; then
               aws lambda create-function \
                --function-name ${LAMBDA_FUNCTION} \
+               --architectures arm64 \
                --package-type Image \
                --code ImageUri=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}@${DIGEST} \
                --region ${AWS_REGION} \
@@ -62,6 +63,7 @@ jobs:
             else
               aws lambda update-function-code \
                --function-name ${LAMBDA_FUNCTION} \
+               --architectures arm64 \
                --image-uri ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:${AWS_ECR_IMAGE_TAG} \
                --region ${AWS_REGION}
             fi
