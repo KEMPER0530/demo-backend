@@ -11,7 +11,7 @@
 
 # Requirement
 
-- golang 1.17.2
+- golang 1.20.7
 - AWS Lambda
 - AWS SES
 - AWS AppSync
