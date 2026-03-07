@@ -1,16 +1,12 @@
-FROM golang:1.20.7-alpine3.18
-MAINTAINER kemper0530
+FROM golang:1.26.1
 
-ENV GOPATH /go
-ENV PATH=$PATH:$GOPATH/src
+WORKDIR /go/src/github.com/kemper0530/demo-backend
 
-# 以下、Docker run 用の設定
-ENV PATH=$PATH:$GOPATH/src/github.com/kemper0530/demo-backend/src
-WORKDIR $GOPATH/src/github.com/kemper0530/demo-backend
-COPY  /src $GOPATH/src/github.com/kemper0530/demo-backend/src
+# 依存解決レイヤーを先に分離してキャッシュを効かせる
+COPY go.mod go.sum ./
+RUN go mod download
 
-RUN go mod init demo-backend
-RUN go mod tidy
+COPY src ./src
 
 RUN GOOS=linux GOARCH=arm64 go build -o demo-backend ./src
 

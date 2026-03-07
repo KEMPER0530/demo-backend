@@ -12,11 +12,20 @@ import (
 
 type NuxtMailRepository struct{}
 
+type sesEmailAPI interface {
+	SendEmail(input *ses.SendEmailInput) (*ses.SendEmailOutput, error)
+}
+
+var newSessionSES = session.NewSession
+var newSESClient = func(newSession *session.Session) sesEmailAPI {
+	return ses.New(newSession)
+}
+
 func (nm *NuxtMailRepository) Send(arg domain.NuxtMail, region, keyID, secretKey string) (*string, error) {
 	log.Println("Email Sending Start...")
 	start := time.Now()
 
-	newSession, err := session.NewSession(&aws.Config{
+	newSession, err := newSessionSES(&aws.Config{
 		Region:      aws.String(region),
 		Credentials: credentials.NewStaticCredentials(keyID, secretKey, ""),
 	})
@@ -26,7 +35,7 @@ func (nm *NuxtMailRepository) Send(arg domain.NuxtMail, region, keyID, secretKey
 	}
 
 	log.Printf("Session Created in %v seconds\n", time.Since(start).Seconds())
-	svc := ses.New(newSession)
+	svc := newSESClient(newSession)
 
 	input := &ses.SendEmailInput{
 		Destination: &ses.Destination{

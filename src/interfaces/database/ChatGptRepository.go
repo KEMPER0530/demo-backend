@@ -8,9 +8,23 @@ import (
 
 type ChatGptRepository struct{}
 
+var listTables = func(d *dynamo.DB) ([]string, error) {
+	return d.ListTables().All()
+}
+
+var createTable = func(d *dynamo.DB, tableName string) error {
+	return d.CreateTable(tableName, domain.ChatGptResult{}).Run()
+}
+
+var sleepTableCreation = time.Sleep
+
+var putResultToTable = func(table *dynamo.Table, arg domain.ChatGptResult) error {
+	return table.Put(arg).Run()
+}
+
 func (cgr *ChatGptRepository) CreateTableIfNotExists(d *dynamo.DB, tableName string) error {
 	// Check if table already exists
-	tables, err := d.ListTables().All()
+	tables, err := listTables(d)
 	if err != nil {
 		return err
 	}
@@ -22,18 +36,18 @@ func (cgr *ChatGptRepository) CreateTableIfNotExists(d *dynamo.DB, tableName str
 	}
 
 	// If table does not exist, create table
-	err = d.CreateTable(tableName, domain.ChatGptResult{}).Run()
+	err = createTable(d, tableName)
 	if err != nil {
 		return err
 	}
 
 	// Wait for a while to allow AWS to create the table
-	time.Sleep(20 * time.Second)
+	sleepTableCreation(20 * time.Second)
 
 	return nil
 }
 
 func (cgr *ChatGptRepository) PutResult(table *dynamo.Table, arg domain.ChatGptResult) error {
-	err := table.Put(arg).Run()
+	err := putResultToTable(table, arg)
 	return err
 }

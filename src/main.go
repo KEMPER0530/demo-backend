@@ -10,21 +10,28 @@ import (
 	"os"
 )
 
+var getenvMain = os.Getenv
+var printMain = fmt.Println
+var lambdaStartMain = lambda.Start
+var localTestMain = infrastructure.LocalTest
+var logMain = log.Println
+var routeRequestMain = infrastructure.RouteRequest
+
 func main() {
-	if os.Getenv("GO_ENV") == "production" {
-		fmt.Println("Starting production mode...")
-		lambda.Start(HandleRequests)
+	if getenvMain("GO_ENV") == "production" {
+		printMain("Starting production mode...")
+		lambdaStartMain(HandleRequests)
 	} else {
-		fmt.Println("Starting development mode...")
-		result, err := infrastructure.LocalTest()
+		printMain("Starting development mode...")
+		result, err := localTestMain()
 		if err != nil {
-			log.Println(err)
+			logMain(err)
 			return
 		}
-		log.Println(result)
+		logMain(result)
 	}
 }
 
 func HandleRequests(ctx context.Context, request domain.AppSyncEvent) (interface{}, error) {
-	return infrastructure.RouteRequest(ctx, request)
+	return routeRequestMain(ctx, request)
 }
