@@ -1,13 +1,19 @@
-FROM golang:1.26.1
+FROM --platform=$BUILDPLATFORM golang:1.26.1 AS build
 
-WORKDIR /go/src/github.com/kemper0530/demo-backend
+ARG TARGETOS=linux
+ARG TARGETARCH=arm64
 
-# 依存解決レイヤーを先に分離してキャッシュを効かせる
+WORKDIR /src
+
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY src ./src
 
-RUN GOOS=linux GOARCH=arm64 go build -o demo-backend ./src
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /demo-backend ./src
 
-ENTRYPOINT ["/go/src/github.com/kemper0530/demo-backend/demo-backend"]
+FROM public.ecr.aws/lambda/provided:al2023
+
+COPY --from=build /demo-backend /demo-backend
+
+ENTRYPOINT ["/demo-backend"]
