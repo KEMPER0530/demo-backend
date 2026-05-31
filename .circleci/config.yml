@@ -1,6 +1,5 @@
 version: 2.1
 orbs:
-  aws-ecr: circleci/aws-ecr@7.3.0
   aws-cli: circleci/aws-cli@3.1.4
   go: circleci/go@1.7.0
 workflows:
@@ -8,12 +7,7 @@ workflows:
   test_and_build_and_deploy:
     jobs:
       - test
-      - aws-ecr/build-and-push-image:
-          executor: ecr_machine
-          region: AWS_REGION
-          account-url: AWS_ECR_ACCOUNT_URL
-          repo: "${AWS_RESOURCE_NAME_PREFIX}"
-          create-repo: true
+      - build-and-push-lambda-image:
           requires:
             - test
           filters:
@@ -21,7 +15,7 @@ workflows:
               only: main
       - aws-lambda-deploy:
           requires:
-            - aws-ecr/build-and-push-image
+            - build-and-push-lambda-image
           filters:
             branches:
               only: main
@@ -55,6 +49,27 @@ jobs:
       - run:
           name: Run unit tests
           command: go test ./src/... -covermode=atomic -race
+  build-and-push-lambda-image:
+    executor: ecr_machine
+    steps:
+      - checkout
+      - aws-cli/setup
+      - run:
+          name: Log into Amazon ECR
+          command: |
+            aws ecr get-login-password --region ${AWS_REGION} --profile default | docker login --username AWS --password-stdin ${AWS_ECR_ACCOUNT_URL}
+      - run:
+          name: Ensure ECR repository exists
+          command: |
+            aws ecr describe-repositories --profile default --region ${AWS_REGION} --repository-names ${AWS_RESOURCE_NAME_PREFIX} > /dev/null 2>&1 || \
+            aws ecr create-repository --profile default --region ${AWS_REGION} --repository-name ${AWS_RESOURCE_NAME_PREFIX} --image-scanning-configuration scanOnPush=true
+      - run:
+          name: Build and push Lambda image
+          command: |
+            IMAGE_TAG="${AWS_ECR_IMAGE_TAG:-latest}"
+            IMAGE_URI="${AWS_ECR_ACCOUNT_URL}/${AWS_RESOURCE_NAME_PREFIX}:${IMAGE_TAG}"
+            docker buildx create --use --name lambda-builder || docker buildx use lambda-builder
+            docker buildx build --platform linux/arm64 --provenance=false -t "${IMAGE_URI}" --push .
   aws-lambda-deploy:
     executor: aws-cli/default
     steps:
@@ -63,13 +78,15 @@ jobs:
       - run:
           name: Deploy Lambda
           command: |
-            DIGEST=$(aws ecr list-images --repository-name ${AWS_RESOURCE_NAME_PREFIX} --out text --query "imageIds[?imageTag=='${AWS_ECR_IMAGE_TAG}'] | [0].imageDigest")
+            IMAGE_TAG="${AWS_ECR_IMAGE_TAG:-latest}"
+            DIGEST=$(aws ecr describe-images --region ${AWS_REGION} --repository-name ${AWS_RESOURCE_NAME_PREFIX} --image-ids imageTag="${IMAGE_TAG}" --query "imageDetails[0].imageDigest" --output text)
+            IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}@${DIGEST}"
             if ! aws lambda get-function --region ${AWS_REGION} --function-name ${LAMBDA_FUNCTION} > /dev/null 2>&1; then
               aws lambda create-function \
                --function-name ${LAMBDA_FUNCTION} \
                --architectures arm64 \
                --package-type Image \
-               --code ImageUri=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}@${DIGEST} \
+               --code ImageUri=${IMAGE_URI} \
                --region ${AWS_REGION} \
                --environment "Variables={GO_ENV="production", PORT=${PORT}, AWS_SES_ACCESS_KEY_ID=${AWS_SES_ACCESS_KEY_ID}, AWS_SES_ENDPOINT=${AWS_SES_ENDPOINT}, AWS_SES_REGION=${AWS_SES_REGION},AWS_SES_SECRET_KEY=${AWS_SES_SECRET_KEY}}" \
                --role ${AWS_LAMBDA_ROLE}
@@ -77,7 +94,7 @@ jobs:
               aws lambda update-function-code \
                --function-name ${LAMBDA_FUNCTION} \
                --architectures arm64 \
-               --image-uri ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:${AWS_ECR_IMAGE_TAG} \
+               --image-uri ${IMAGE_URI} \
                --region ${AWS_REGION}
             fi
 cache:
