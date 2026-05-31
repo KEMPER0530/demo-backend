@@ -3,7 +3,7 @@ module github.com/kemper0530/demo-backend
 go 1.26
 
 require (
-	github.com/aws/aws-lambda-go v1.41.0
+	github.com/aws/aws-lambda-go v1.54.0
 	github.com/aws/aws-sdk-go v1.44.300
 	github.com/google/uuid v1.3.0
 	github.com/guregu/dynamo v1.20.0
