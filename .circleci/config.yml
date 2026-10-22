@@ -27,7 +27,7 @@ executors:
 jobs:
   test:
     docker:
-      - image: golang:1.26.1
+      - image: golang:1.26.10
     working_directory: ~/project
     steps:
       - checkout

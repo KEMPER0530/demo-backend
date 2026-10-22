@@ -108,3 +108,7 @@ go tool cover -func=coverage.out
 2. ユニットテスト実行
 3. カバレッジ計測
 4. 合計カバレッジが `100.0%` でない場合は失敗
+
+## Security maintenance
+
+Build with Go 1.26.10 or later; CI and the Docker builder use that patched toolchain. Routing does not log mail bodies, addresses, prompts, or model responses. Dependabot auto-merge validates the exact PR head SHA before approving/merging.

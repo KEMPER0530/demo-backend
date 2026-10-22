@@ -53,6 +53,11 @@ jobs:
               return;
             }
 
+            if (run.event !== "pull_request" || run.head_repository.full_name !== `${owner}/${repo}` || pr.head.sha !== run.head_sha) {
+              core.info("Successful run does not validate the current PR head.");
+              return;
+            }
+
             try {
               await github.rest.pulls.createReview({
                 owner,
@@ -69,6 +74,7 @@ jobs:
               owner,
               repo,
               pull_number: prNumber,
+              sha: run.head_sha,
               merge_method: "squash"
             });
 
