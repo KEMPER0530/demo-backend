@@ -29,7 +29,6 @@ var newPutChatGptController = func() chatGptController {
 var newDynamoDBRouting = NewDynamoDB
 
 func RouteRequest(ctx context.Context, request domain.AppSyncEvent) (interface{}, error) {
-	fmt.Printf("Request received: %+v\n", request) // デバッグログ
 	switch request.OperationName {
 	case "createChatGptResult":
 		var args domain.ChatGptResult
@@ -49,13 +48,11 @@ func RouteRequest(ctx context.Context, request domain.AppSyncEvent) (interface{}
 }
 
 func handleNuxtMail(dnm domain.NuxtMail) (domain.Res, error) {
-	fmt.Printf("Handling NuxtMail: %+v\n", dnm) // デバッグログ
 	NuxtMailController := newNuxtMailController(newSESRouting())
 	return NuxtMailController.SendSESEmail(dnm)
 }
 
 func handleChatGptResult(dcgr domain.ChatGptResult) (domain.Res, error) {
-	fmt.Printf("Handling ChatGptResult: %+v\n", dcgr) // デバッグログ
 	PutChatGptController := newPutChatGptController()
 	return PutChatGptController.PutChatGptResult(dcgr, newDynamoDBRouting())
 }
